@@ -1,12 +1,12 @@
-module RunGame where
+module UserInterface where
 
 import Data.Char
 import System.Random
-import Cards
+
 
 -- | The interface to the students' implementation.
 data Interface = Interface
-  { iEmpty    :: Board 
+  { iEmpty    :: Board
   , iFullDeck :: Hand
   , iValue    :: Hand -> Integer
   , iGameOver :: Hand -> Bool
@@ -17,7 +17,7 @@ data Interface = Interface
   }
 
 -- | A type of players.
-data Player = Human | Bot 
+data Player = Human | Bot
               deriving (Show, Eq)
 
 -- | Runs a game given an implementation of the interface.

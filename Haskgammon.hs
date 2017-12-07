@@ -2,6 +2,8 @@ module Haskgammon where
 
 import Test.QuickCheck
 import System.Random
+import UserInterface
+import RunGame
 
 data Board = Board { points :: [Point], whiteBar :: Int, blackBar :: Int}
              deriving (Eq, Show)
@@ -176,3 +178,28 @@ legalBearOffMove (Move c (start, end)) = True
 createMove :: Color -> Int -> Int -> Move
 createMove Black jump start = (Move Black (start, (start - jump)))
 createMove White jump start = (Move White (start, (start + jump)))
+
+
+
+
+
+
+
+
+
+implementation = Interface
+{
+    iBoard = stdStart,
+    iThrowDice = throwDice,
+    iMakeMove = makeMove    
+}
+
+main :: IO ()
+main = runGame implementation
+
+
+
+--
+--
+--
+--
