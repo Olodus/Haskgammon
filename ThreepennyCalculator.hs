@@ -3,8 +3,8 @@ import Graphics.UI.Threepenny.Core as UI
 import qualified Graphics.UI.Threepenny as UI
 
 canWidth,canHeight :: Num a => a
-canWidth  = 300
-canHeight = 300
+canWidth  = 800
+canHeight = 700
 
 main = startGUI defaultConfig setup
 

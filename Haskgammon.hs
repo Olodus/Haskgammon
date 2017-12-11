@@ -1,24 +1,10 @@
 module Haskgammon where
 
-import Test.QuickCheck
-import System.Random
 import UserInterface
 import RunGame
-
-data Board = Board { points :: [Point], whiteBar :: Int, blackBar :: Int}
-             deriving (Eq, Show)
-
-data Point = Point { checkers :: [Checker] }
-             deriving (Eq, Show)
-
-data Checker = Checker { color :: Color }
-               deriving (Eq, Show)
-
-data Color = White | Black
-             deriving (Eq, Show)
-
-data Move = Move { playerColor :: Color, move :: (Int, Int) }
-            deriving (Eq, Show)
+import Test.QuickCheck
+import System.Random
+import Debug.Trace
 
 
 stdStart :: Board
@@ -71,8 +57,27 @@ boardBlack =  (Board [
             Point([]), Point([]), Point([]), Point([]), Point([]),
             Point(createCheckers 5 White),
             Point([]),Point(createCheckers 1 White)] 0 0)
+
+
 createCheckers :: Int -> Color -> [Checker]
 createCheckers n c = helpercheckers [] n c
+
+createEmptyBoard :: Board
+createEmptyBoard = (Board [
+            Point(createCheckers 1 Black), Point([]),
+            Point(createCheckers 1 White),
+            Point([]),
+            Point([]),
+            Point([]),
+
+            Point([]), Point([]), Point([]), Point([]),
+            Point([]),
+            Point([]),
+            Point([]),
+            Point([]), Point([]), Point([]),
+            Point([]), Point([]), Point([]), Point([]), Point([]),
+            Point([]),
+            Point([]),Point([])] 0 0)
 
 helpercheckers :: [Checker] -> Int -> Color -> [Checker]
 helpercheckers l 0 _ = l
@@ -93,13 +98,30 @@ throwHelper g = (n1, n2, n3)
 
 
 makeMove :: (Int, Int) -> Board -> Board
-makeMove (start, end) board = addToPoint c end newboard
-        where newboard = removeFromPoint start board
-              c = color (head (checkers ((points board) !! start)))
+makeMove (start, end) board =
+        if (blot (invertColor c) p2)
+          then (addToPoint c end
+            (removeFromPoint start
+            (removeFromPoint end
+            (addToBar board (invertColor c)))))
+        else
+          addToPoint c end (removeFromPoint start board)
+        where
+              c = color (head (checkers p1))
+              p1 = (points board) !! start
+              p2 = (points board) !! end
+
+addToBar :: Board -> Color -> Board
+addToBar (Board p wh bl) White =  Board p (wh + 1) bl
+addToBar (Board p wh bl) Black =  Board p wh (bl + 1)
+
+invertColor :: Color -> Color
+invertColor White = Black
+invertColor Black = White
 
 legalMove :: Board -> Move -> Bool
 legalMove b (Move c (start, end))
-    | not (insideBoard m) && bearOff b c = legalBearOffMove m
+    | not (insideBoard m) && bearOff b c = legalBearOffMove b m
     | isEmpty (getPoint b end) = True
     | hasAny c (getPoint b end) = True
     | c == White && blot Black (getPoint b end) = True
@@ -129,12 +151,6 @@ allLegalMoves b c diceroll = filter (legalMove b) (allPossibleMoves b c diceroll
 --  with a given dice roll
 allPossibleMoves :: Board -> Color -> Int -> [Move]
 allPossibleMoves b c d = map (createMove c d) (filter (\x -> hasAny c  (getPoint b x)) [0..23])
--- map (createMove c d2) (filter (hasAny c (getPoint b)) [0..23])
--- All double-jump moves too
--- I also need to be able to represent these as Move (recursive type?)
--- also double Dicerolls...?
---
--- possibleHelper :: Board -> Color -> Int -> [Move]
 
 getPoint :: Board -> Int -> Point
 getPoint (Board p _ _) i = p !! i
@@ -167,32 +183,40 @@ bearOff :: Board -> Color -> Bool
 bearOff b White = length (filter (\x -> hasAny White (getPoint b x)) [0..17]) == 0
 bearOff b Black = length (filter (\x -> hasAny Black (getPoint b x)) [6..23]) == 0
 
-legalBearOffMove :: Move -> Bool
-legalBearOffMove (Move c (start, end)) = True
+legalBearOffMove :: Board -> Move -> Bool
+legalBearOffMove b (Move White (17, end)) = True
+legalBearOffMove b (Move White (start, end)) =
+            if hasAny White (getPoint b (start- 1))
+              then False
+                else legalBearOffMove b (Move White ((start - 1), end))
+
+legalBearOffMove b (Move Black (5, end)) = True
+legalBearOffMove b (Move Black (start, end)) =
+            if hasAny White (getPoint b (start + 1))
+              then False
+                else legalBearOffMove b (Move Black ((start + 1), end))
+
 
 -- No this is not how we should do it. Direction should probably be a type class / function you can do on a Board. Somethins like color Board executes in one way or another... though that is just a function... I dont know... Monads man monads...
 --getDirection :: Color -> (Int -> Int)
 --getDirection White = (\x, y -> x + y)
 --getDirection Black = (\x, y -> x - y)
 --Like this?...
+
 createMove :: Color -> Int -> Int -> Move
 createMove Black jump start = (Move Black (start, (start - jump)))
 createMove White jump start = (Move White (start, (start + jump)))
 
-
-
-
-
-
-
-
+hasWon:: Color -> Board -> Bool
+hasWon c b =  length (filter (hasAny c) (points b)) ==  0
 
 implementation = Interface
-{
-    iBoard = stdStart,
-    iThrowDice = throwDice,
-    iMakeMove = makeMove    
-}
+  { iBoard = stdStart
+  , iThrowDice = throwDice
+  , iMakeMove = makeMove
+  , iLegalMove = legalMove
+  , iCreateMove = createMove
+  }
 
 main :: IO ()
 main = runGame implementation
