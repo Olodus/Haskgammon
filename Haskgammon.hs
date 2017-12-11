@@ -64,8 +64,8 @@ createCheckers n c = helpercheckers [] n c
 
 createEmptyBoard :: Board
 createEmptyBoard = (Board [
-            Point(createCheckers 1 Black), Point([]),
-            Point(createCheckers 1 White),
+            Point([]), Point([]),
+            Point([]),
             Point([]),
             Point([]),
             Point([]),
@@ -77,7 +77,7 @@ createEmptyBoard = (Board [
             Point([]), Point([]), Point([]),
             Point([]), Point([]), Point([]), Point([]), Point([]),
             Point([]),
-            Point([]),Point([])] 0 0)
+            Point([]),Point([])] 1 0)
 
 helpercheckers :: [Checker] -> Int -> Color -> [Checker]
 helpercheckers l 0 _ = l
@@ -166,9 +166,6 @@ hasAny Black (Point ((Checker Black):_)) = True
 hasAny Black _ = False
 hasAny White (Point ((Checker White):_)) = True
 hasAny White _ = False
---
--- hasAnyAt :: Board -> Color -> Int -> Bool
-
 
 -- | Checks if there is only one checker contained in a certain point
 blot :: Color -> Point -> Bool
@@ -196,19 +193,16 @@ legalBearOffMove b (Move Black (start, end)) =
               then False
                 else legalBearOffMove b (Move Black ((start + 1), end))
 
-
--- No this is not how we should do it. Direction should probably be a type class / function you can do on a Board. Somethins like color Board executes in one way or another... though that is just a function... I dont know... Monads man monads...
---getDirection :: Color -> (Int -> Int)
---getDirection White = (\x, y -> x + y)
---getDirection Black = (\x, y -> x - y)
---Like this?...
-
 createMove :: Color -> Int -> Int -> Move
 createMove Black jump start = (Move Black (start, (start - jump)))
 createMove White jump start = (Move White (start, (start + jump)))
 
-hasWon:: Color -> Board -> Bool
-hasWon c b =  length (filter (hasAny c) (points b)) ==  0
+hasWon :: Color -> Board -> Bool
+hasWon c b =  length (filter (hasAny c) (points b)) ==  0 && noBar b c
+
+noBar :: Board -> Color -> Bool
+noBar b White = (whiteBar b) == 0
+noBar b Black = (blackBar b) == 0
 
 implementation = Interface
   { iBoard = stdStart
