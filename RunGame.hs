@@ -15,13 +15,6 @@ data Interface = Interface
     , iCreateMove :: Color -> Int -> Int -> Move
   }
 
-  -- | A type of players.
-data Player = Player { playerColor :: Color, playerType :: PlayerType}
-                deriving (Show, Eq)
-
-data PlayerType = Human | Bot
-              deriving (Show, Eq)
-
 -- | Runs a game given an implementation of the interface.
 runGame :: Interface -> IO ()
 runGame i =
@@ -30,10 +23,10 @@ runGame i =
      gameLoop i g (iBoard i) (Player White Human) (Player Black Human)
 
 -- | Play until the guest player is bust or chooses to stop.
-gameLoop :: Interface -> StdGen -> Board -> Player -> Player -> IO ()
-gameLoop i g board p1 p2 =
+--gameLoop :: Interface -> StdGen -> Board -> Player -> Player -> IO ()
+--gameLoop i g board p1 p2 =
   --do putStrLn ( "Current board: ")
-     printPoints (points board)
+--     printPoints (points board)
   --TODO Determine when player has won!
      --if iGameOver i guest
       -- then finish i deck guest
@@ -79,3 +72,5 @@ printChecker c = putStrLn (show c)
 
 -- | Show a backgammon board
 -- printBoard :: Board -> IO ()
+
+
