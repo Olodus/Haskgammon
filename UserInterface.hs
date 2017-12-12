@@ -18,3 +18,5 @@ data Color = White | Black
 
 data Move = Move { playerColor :: Color, move :: (Int, Int) }
             deriving (Eq, Show)
+
+data GameState = GameState { activePlayer :: Player, nextPlayer :: Player, board :: Board, dialog :: String, dice :: (Int, Int, Int, Int)}
