@@ -1,10 +1,11 @@
 module Haskgammon where
 
-import UserInterface
-import RunGame
 import Test.QuickCheck
 import System.Random
 import Debug.Trace
+
+import BackgammonTypes
+import UserInterface
 
 
 stdStart :: Board
@@ -204,16 +205,13 @@ noBar :: Board -> Color -> Bool
 noBar b White = (whiteBar b) == 0
 noBar b Black = (blackBar b) == 0
 
-implementation = Interface
-  { iBoard = stdStart
-  , iThrowDice = throwDice
-  , iMakeMove = makeMove
-  , iLegalMove = legalMove
-  , iCreateMove = createMove
-  }
+doTurn :: Move -> GameState -> GameState
+doTurn m g = (GameState True (Player White Human) (Player Black Human) (createEmptyBoard) ("Woop woop") (1,1,1,1))
 
-main :: IO ()
-main = runGame implementation
+implementation = Interface
+  { iHandleMove = doTurn }
+
+main = setup implementation stdStart
 
 
 
