@@ -205,13 +205,35 @@ noBar :: Board -> Color -> Bool
 noBar b White = (whiteBar b) == 0
 noBar b Black = (blackBar b) == 0
 
-doTurn :: Move -> GameState -> GameState
-doTurn m g = (GameState True (Player White Human) (Player Black Human) (createEmptyBoard) ("Woop woop") (1,1,1,1))
+
+decDice :: (Int,Int,Int,Int) -> Move-> (Int,Int,Int,Int)
+decDice (a,b,c,d) (Move White (start,end))
+  | (end - start) == a = (b,c,d,0)
+  | (end - start) == b = (c,d,0,a)
+  | (end - start) == c = (d,0,a,b)
+  | (end - start) == d = (0,a,b,c)
+  | otherwise = (a,b,c,d)
+
+hasMadeAllMoves :: (Int,Int,Int,Int) -> Bool
+hasMadeAllMoves (a,b,c,d) = (a,b,c,d) == (0,0,0,0)
+
+doTurn :: Move -> GameState -> StdGen -> GameState
+doTurn (Move color (start,end)) (GameState win p1 p2 b c d) gen  --(GameState True (Player White Human) (Player Black Human) (createEmptyBoard) ("Woop woop") (1,1,1,1))
+  | legalMove b m == False = (GameState win p1 p2 b "not legal move! choose another move!" d)
+  | not (hasMadeAllMoves diceAfter) = (GameState (hasWon color boardAfter) p1 p2 boardAfter "make another move" diceAfter)
+  | otherwise = (GameState (hasWon color boardAfter) p2 p1 boardAfter "Next player turn!" (throwDice gen))
+    where m = (Move color (start,end))
+          g = (GameState win p1 p2 b c d)
+          boardAfter = makeMove (start,end) b
+          diceAfter = decDice d m
+
 
 implementation = Interface
-  { iHandleMove = doTurn }
+  {
+    iHandleMove = doTurn 
+  }
 
-main = setup implementation stdStart
+main rndnbr = setup implementation stdStart rndnbr
 
 
 
