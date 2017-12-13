@@ -3,7 +3,7 @@
 module ThreepennyPages(
   -- * Building web pages
   Element,UI.Canvas,mkCanvas,mkInput,mkButton,mkSlider,
-  mkHTML,
+  mkHTML, mkInvis,
   -- * Events
   valueChange',mousedown'
   ) where
@@ -12,6 +12,15 @@ import Graphics.UI.Threepenny.Core as UI
 import qualified Graphics.UI.Threepenny as UI
 import qualified Data.Aeson              as JSON
 import BackgammonTypes
+
+
+mkInvis :: String -> String -> UI Element
+mkInvis id value =
+    UI.p
+    # set (attr "id") (show id)
+    #set text value
+    # set style [("visibility", "visible")]
+
 
 -- | @mkInput width init@ makes an input element with the specified width and
 -- initial text
