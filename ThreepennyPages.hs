@@ -22,26 +22,29 @@ mkInput width init = do
              # set value init
 
 -- | @mkButton label@ makes a clickable button with the given label
-mkButton :: Maybe Color -> String -> UI Element
-mkButton (Just White) label = UI.button
+mkButton :: Maybe Color -> String -> Int -> UI Element
+mkButton (Just White) label id = UI.button
                     # set text label
                     # set style [("width", "50px"),
                                  ("height", "100px"),
                                  ("backgroundColor", "white")
                                   ]
-mkButton (Just Black) label = UI.button
+                    # set (attr "id") (show id)
+mkButton (Just Black) label id = UI.button
                     # set text label
                     # set style [("width", "50px"),
                                  ("height", "100px"),
                                  ("backgroundColor", "black"),
                                  ("color", "white")
                                   ]
+                    # set (attr "id") (show id)
 
-mkButton Nothing label = UI.button
+mkButton Nothing label id = UI.button
                     # set text label
                     # set style [("width", "50px"),
                                  ("height", "100px"),
                                  ("backgroundColor", "lightgray")]
+                    # set (attr "id") (show id)
 
 
 -- | @mkSlider (min,max) init@ create a slider
