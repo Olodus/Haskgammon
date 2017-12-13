@@ -5,7 +5,7 @@ import System.Random
 import Debug.Trace
 
 import BackgammonTypes
-import UserInterface
+import TextUI
 
 
 stdStart :: Board
@@ -228,12 +228,12 @@ doTurn (Move color (start,end)) (GameState win p1 p2 b c d) gen  --(GameState Tr
           diceAfter = decDice d m
 
 
-implementation = Interface
-  {
-    iHandleMove = doTurn 
-  }
+implementation = Interface {
+      iHandleMove = doTurn
+     ,iThrowDice = throwDice
+}
 
-main rndnbr = setup implementation stdStart rndnbr
+main = setup implementation (GameState False (Player White Human) (Player Black Human) (stdStart) ("Start") (1,1,1,1)) 
 
 
 
