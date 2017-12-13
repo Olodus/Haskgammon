@@ -15,21 +15,23 @@ data Interface = Interface
   { iHandleMove :: Move -> GameState -> GameState }
 
 canWidth,canHeight :: Num a => a
-canWidth  = 800
-canHeight = 700
+canWidth  = 50
+canHeight = 100
 
-setup (Interface hm) firstState = startGUI defaultConfig (baseHTML firstState hm)
+setup (Interface hm) initBoard = startGUI defaultConfig (baseHTML initBoard hm)
 
-baseHTML firstState gameLogic window  = do
+baseHTML initBoard gameLogic window  = do
      canvas  <- mkCanvas canWidth canHeight   -- The drawing area
+     buttonBoard <- createCanvasBoard
      dialog  <- mkHTML "<i>Action</i>)="      -- The text "Action"
      p1      <- mkHTML "<b>White<b>"          -- Shows which player's turn it is
      p2      <- mkHTML "<b>Black<b>"          -- Shows the other player
      invis   <- mkPointList                   -- Only used in parsing state (never shown)
-     
+
      -- Layout
-     formula <- row [pure canvas, pure dialog]
-     getBody window #+ [column [pure formula]]
+     pointsFirstRow <- row (firstRow buttonBoard)
+     pointsSecondRow <- row (secondRow buttonBoard)
+     getBody window #+ [column [pure pointsFirstRow, pure pointsSecondRow]]
 
      -- Styling
      getBody window # set style [("backgroundColor","lightblue"),
@@ -38,6 +40,25 @@ baseHTML firstState gameLogic window  = do
 
      -- Interaction
      on UI.click     canvas  $ \ _ -> handleInput gameLogic window
+    -- [do (on UI.click  btn) $ \ _ -> handleInput gameLogic window )| btn <- buttonBoard]
+    -- on UI.click  buttonBoard !! 0 $ \ _ -> handleInput gameLogic window
+
+firstRow btnBoard = take 12 btnBoard
+
+secondRow btnBoard = drop 12 btnBoard
+
+createCanvasBoard :: UI [UI Element]
+createCanvasBoard =
+ return ([
+   (mkButton (Just White) "2"),(mkButton Nothing ""),(mkButton Nothing "" ),(mkButton Nothing ""),(mkButton Nothing ""),(mkButton (Just Black) "5"),
+   (mkButton Nothing ""),(mkButton (Just Black) "3"),(mkButton Nothing "" ),(mkButton Nothing ""),(mkButton Nothing ""),(mkButton (Just White) "5"),
+   (mkButton (Just Black) "5"),(mkButton Nothing ""),(mkButton Nothing "" ),(mkButton Nothing ""),(mkButton (Just White) "3"),(mkButton Nothing ""),
+   (mkButton (Just White) "5"),(mkButton Nothing ""),(mkButton Nothing "" ),(mkButton Nothing ""),(mkButton Nothing ""),(mkButton (Just Black) "2")
+ ])
+--
+-- fillInitBoard :: [Canvas] -> UI [UI Element]
+-- fillInitBoard cList = return [do c # UI.fillText "ss" (20,50) | c <- cList]
+--
 
 parseState :: Window -> GameState
 parseState window = (GameState False (Player White Human) (Player Black Human) (Board [Point([]),
@@ -71,8 +92,8 @@ update (GameState False p1 p2 b s d) window = do
      getBody window # set style [("backgroundColor","black"),
                                  ("textAlign","center")]
 
---drawCanvas :: Board -> UI 
-drawCanvas (Board ps _ _) c = do 
+--drawCanvas :: Board -> UI
+drawCanvas (Board ps _ _) c = do
      set UI.fillStyle (UI.solidColor (UI.RGB 255 255 255)) (pure c)
      UI.fillRect (0,0) canWidth canHeight c
      set UI.fillStyle (UI.solidColor (UI.RGB 0 0 0)) (pure c)

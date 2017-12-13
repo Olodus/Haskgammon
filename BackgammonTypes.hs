@@ -12,7 +12,7 @@ data Point = Point { checkers :: [Checker] }
 data Checker = Checker { color :: Color }
                deriving (Eq, Show)
 
-data Color = White | Black
+data Color = White | Black 
              deriving (Eq, Show)
 
 data Move = Move { moveColor :: Color, move :: (Int, Int) }

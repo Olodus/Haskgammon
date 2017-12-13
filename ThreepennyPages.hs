@@ -11,6 +11,7 @@ module ThreepennyPages(
 import Graphics.UI.Threepenny.Core as UI
 import qualified Graphics.UI.Threepenny as UI
 import qualified Data.Aeson              as JSON
+import BackgammonTypes
 
 -- | @mkInput width init@ makes an input element with the specified width and
 -- initial text
@@ -21,8 +22,27 @@ mkInput width init = do
              # set value init
 
 -- | @mkButton label@ makes a clickable button with the given label
-mkButton :: String -> UI Element
-mkButton label = UI.button #+ [string label]
+mkButton :: Maybe Color -> String -> UI Element
+mkButton (Just White) label = UI.button
+                    # set text label
+                    # set style [("width", "50px"),
+                                 ("height", "100px"),
+                                 ("backgroundColor", "white")
+                                  ]
+mkButton (Just Black) label = UI.button
+                    # set text label
+                    # set style [("width", "50px"),
+                                 ("height", "100px"),
+                                 ("backgroundColor", "black"),
+                                 ("color", "white")
+                                  ]
+
+mkButton Nothing label = UI.button
+                    # set text label
+                    # set style [("width", "50px"),
+                                 ("height", "100px"),
+                                 ("backgroundColor", "lightgray")]
+
 
 -- | @mkSlider (min,max) init@ create a slider
 mkSlider :: (Int,Int) -> Int -> UI Element
